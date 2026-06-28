@@ -1,0 +1,6 @@
+# Ignore local sensitive files
+*.csv
+.env
+*.pem
+*.key
+secrets/

@@ -1,0 +1,17 @@
+{
+  "project": "SAMA Water Platform",
+  "repo": "technologytools85-ux/sama-water-platform1",
+  "created_at": "2026-06-28T00:00:00Z",
+  "branch": "space-archive/2026-06-28",
+  "files_added": [
+    "space-archive/README-SPACE-ARCHIVE.md",
+    "space-archive/.gitignore",
+    "space-archive/meta/metadata.json",
+    "space-archive/attachments/copilot-deploy_credentials_PLACEHOLDER.txt",
+    "space-archive/chats/session-2026-06-28-1.md"
+  ],
+  "sensitive_files_excluded": [
+    "copilot-deploy_credentials.csv"
+  ],
+  "notes": "Sensitive credential files were excluded and replaced with a placeholder. To add secrets, use GitHub Secrets or a secrets manager and reference them from your CI or deployment workflows."
+}
