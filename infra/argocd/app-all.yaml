@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: moel-all-staging
+  namespace: argocd
+spec:
+  source:
+    repoURL: 'https://github.com/technologytools85-ux/sama-water-platform1'
+    targetRevision: main
+    path: infra/helm
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: moel
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

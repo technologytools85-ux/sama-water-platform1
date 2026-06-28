@@ -1,0 +1,58 @@
+name: CI/CD - Build & Deploy to Staging
+on:
+  push:
+    branches:
+      - main
+env:
+  AWS_REGION: us-east-1
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install backend deps & build
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run build
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/moel-backend:${{ github.sha }} -f backend/Dockerfile .
+      - name: Push image to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/moel-backend:${{ github.sha }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Terraform Init & Apply (infra)
+        working-directory: infra/terraform
+        env:
+          TF_VAR_project_name: moel
+          TF_VAR_environment: staging
+        run: |
+          terraform init
+          terraform apply -auto-approve
+      - name: Deploy Helm charts to EKS (via kubectl/helm)
+        run: |
+          aws eks update-kubeconfig --name $(terraform output -raw eks_cluster_name) --region ${{ env.AWS_REGION }}
+          helm upgrade --install moel-backend ./infra/helm/moel-backend --set image.tag=${{ github.sha }} --namespace moel --create-namespace
