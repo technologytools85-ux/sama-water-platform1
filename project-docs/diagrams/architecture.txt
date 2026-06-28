@@ -1,0 +1,18 @@
+# Architecture (text placeholder)
+- Clients (web/mobile)
+  -> CloudFront / Ingress
+  -> Services:
+     - Frontend (Next.js)
+     - Backend (Node.js/Express)
+     - Postgres (RDS)
+     - Redis (ElastiCache)
+     - Kafka (MSK) - optional
+- Infra:
+  - VPC -> public/private subnets
+  - EKS cluster with nodegroups
+  - S3 for terraform state (backend)
+  - DynamoDB for state lock
+- Deployment:
+  - GitHub Actions (build + plan)
+  - OIDC -> AWS role
+  - ArgoCD for continuous delivery to EKS
